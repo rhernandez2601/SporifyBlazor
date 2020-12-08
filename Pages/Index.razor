@@ -1,3 +1,72 @@
 ﻿@page "/"
+@inject HttpClient HttpClient
+@inject ILocalStorageService localStorage
 
-<h1>Hello, world!</h1>
+<div class="row">
+    <div class="col-6">
+        <div class="row">
+            <div class="col-8 offset-2">
+                @if (currentlyPlaying != null)
+                {
+                    <div>
+                        @currentlyPlaying.Item.Type;
+                    </div>
+                }
+                @if (recentlyPlaying != null)
+                {
+                    <ul>
+                        @foreach (var item in recentlyPlaying.Items)
+                        {
+                            <li>
+                                @item.Track.Name
+                            </li>
+                        }
+                    </ul>
+                }
+                <div id="album_image"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="row">
+            <div class="col-12 text-center">
+                <div id="musicText">
+                    <h4>Listening to</h4>
+                    <h1><a target="_blank" id="song_title"></a></h1>
+                    <h4>by</h4>
+                    <h2><a target="_blank" id="artist"></a></h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2 offset-5">
+                <button class="btn btn-secondary btn-lg btn-outline-warning btn-block" type="button"
+                    id="shareSong">Share</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    public string accessToken { get; set; }
+    public SpotifyClient spotifyClient { get; set; }
+    public PrivateUser spotifyUser { get; set; }
+    public CurrentlyPlaying currentlyPlaying { get; set; }
+    public CursorPaging<PlayHistoryItem> recentlyPlaying { get; set; }
+    protected async override Task OnInitializedAsync()
+    {
+        accessToken = await localStorage.GetItemAsStringAsync("access_token");
+        spotifyClient = new SpotifyClient(accessToken);
+        spotifyUser = await spotifyClient.UserProfile.Current();
+        await GetCurrentOrRecentTrack();
+    }
+    private async Task GetCurrentOrRecentTrack()
+    {
+        var currentlyPlaying = await spotifyClient.Player.GetCurrentlyPlaying(new PlayerCurrentlyPlayingRequest());
+        if (currentlyPlaying == null)
+        {
+            var recentlyPlaying = await spotifyClient.Player.GetRecentlyPlayed();
+        }
+    }
+}

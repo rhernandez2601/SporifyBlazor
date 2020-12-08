@@ -1,5 +1,11 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Bebas Neue', cursive;
+}
+
+body  {
+    padding:  20px;
+    background: linear-gradient(to right, #2614c5, #5c7eee, #2614c5); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */;
+    color: rgb(196, 143, 30);
 }

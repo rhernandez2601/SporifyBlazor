@@ -1,5 +1,58 @@
 @inherits LayoutComponentBase
 
+@inject NavigationManager navigation
+@inject ISyncLocalStorageService localStorage
+
 <div class="container-fluid">
-    @Body
-</div>
+    @if (isLoggedIn == false)
+    {
+        <div class="row">
+            <div class="col-12 text-center">
+                <button @onclick="HandleLogIn" class="btn btn-success btn-outline-warning btn-lg" type="button"
+                    id="log-in-btn">Spotify Log
+                    In</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <NavMenu></NavMenu>
+        @Body
+    }
+    </div>
+
+    @code {
+    private bool isLoggedIn;
+    private string userName;
+    private string access_token;
+    protected override void OnInitialized()
+    {
+        localStorage.Clear();
+        localStorage.RemoveItem("access_token");
+
+        if (navigation.Uri.Contains("access_token="))
+        {
+            access_token = navigation.Uri.Split("access_token=").Last();
+            if (access_token != null && access_token != String.Empty)
+            {
+                localStorage.SetItem("access_token", access_token);
+                isLoggedIn = true;
+            }
+        }
+    }
+    private void HandleLogIn()
+    {
+        var client_id = "37eaba6e04e343259fc399757e7e2e75"; // Your client id
+        var redirect_uri = "https://localhost:5001/"; // Your redirect uri
+
+        var scope = "user-read-private user-read-email";
+
+        var url = "https://accounts.spotify.com/authorize";
+        url += "?response_type=token";
+        url += "&client_id=" + Uri.EscapeDataString(client_id);
+        url += "&scope=" + Uri.EscapeDataString(scope);
+        url += "&redirect_uri=" + Uri.EscapeDataString(redirect_uri);
+
+        navigation.NavigateTo(url);
+    }
+}
